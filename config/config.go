@@ -12,11 +12,15 @@ import (
 )
 
 type Config struct {
-	DBFilename string   `mapstructure:"db_filename"`
-	FeedNames  []string `mapstructure:"feed_names"`
-	LogLevel   string   `mapstructure:"log_level"`
-	LogFormat  string   `mapstructure:"log_format"`
-	Consumer   struct {
+	DB struct {
+		Engine           string `mapstructure:"engine"`
+		ConnectionString string `mapstructure:"connection_string"`
+	} `mapstructure:"db"`
+	FeedNames []string `mapstructure:"feed_names"`
+	FeedName  string   `mapstructure:"feed_name"`
+	LogLevel  string   `mapstructure:"log_level"`
+	LogFormat string   `mapstructure:"log_format"`
+	Consumer  struct {
 		Enabled      bool   `mapstructure:"enabled"`
 		JetstreamURL string `mapstructure:"jetstream_url"`
 		StartCursor  int64  `mapstructure:"start_cursor"`
@@ -33,8 +37,11 @@ func (config Config) Validate() error {
 	if !(config.Consumer.Enabled || config.Feedgen.Enabled) {
 		return fmt.Errorf("at least one of CONSUMER_ENABLED or FEEDGEN_ENABLED must be specified")
 	}
-	if config.DBFilename == "" {
-		return fmt.Errorf("DB_FILENAME is required")
+	if config.DB.ConnectionString == "" {
+		return fmt.Errorf("DB_CONNECTION_STRING is required")
+	}
+	if config.DB.Engine != "sqlite" && config.DB.Engine != "pgx" {
+		return fmt.Errorf("invalid database engine provided, must be 'sqlite' or 'pgx'")
 	}
 	if len(config.FeedNames) == 0 {
 		return fmt.Errorf("FEED_NAMES is required")
@@ -63,7 +70,8 @@ func setupFlags(cmd *cobra.Command) {
 
 	flags.String("config", "", "YAML config file path")
 
-	flags.String("db_filename", "feeds.sqlite", "Database filename")
+	flags.String("db.engine", "sqlite", "Database engine (available: sqlite, pgx)")
+	flags.String("db.connection_string", "feeds.sqlite", "Database filename / url")
 	flags.StringArray("feed_names", []string{"composer-errors"}, "Feed names")
 	flags.String("log_level", "INFO", "Log level")
 	flags.String("log_format", "text", "Log format (text or json)")
@@ -142,6 +150,11 @@ func Execute(runFn func(Config) error) error {
 			}
 			if err := cfg.Validate(); err != nil {
 				return fmt.Errorf("invalid config: %w", err)
+			}
+
+			// Ensure database file is correctly formatted
+			if cfg.DB.Engine == "sqlite" && !strings.HasPrefix(cfg.DB.ConnectionString, "file:") {
+				cfg.DB.ConnectionString = "file:" + cfg.DB.ConnectionString + "?cache=shared&_journal_mode=WAL"
 			}
 			return runFn(cfg)
 		},

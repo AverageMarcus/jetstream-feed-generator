@@ -15,6 +15,7 @@ import (
 	dbpkg "jetstream-feed-generator/db"
 	"jetstream-feed-generator/feedgen"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "modernc.org/sqlite"
 )
 
@@ -46,7 +47,7 @@ func Run(config confpkg.Config) error {
 	if err != nil {
 		return fmt.Errorf("failed to parse config: %v", err)
 	}
-	db, err := sql.Open("sqlite", "file:"+config.DBFilename+"?cache=shared&_journal_mode=WAL")
+	db, err := sql.Open(config.DB.Engine, config.DB.ConnectionString)
 	if err != nil {
 		return fmt.Errorf("failed to open db: %v", err)
 	}
