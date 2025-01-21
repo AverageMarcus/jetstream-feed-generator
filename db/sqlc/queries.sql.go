@@ -13,7 +13,7 @@ import (
 const getFeed = `-- name: GetFeed :one
 select feed_name, latest_cursor
 from feeds
-where feed_name = ?
+where feed_name = $1
 `
 
 func (q *Queries) GetFeed(ctx context.Context, feedName string) (Feed, error) {
@@ -26,10 +26,10 @@ func (q *Queries) GetFeed(ctx context.Context, feedName string) (Feed, error) {
 const getFeedPosts = `-- name: GetFeedPosts :many
 select feed_name, time_us, did, rkey
 from feed_posts
-where feed_name = ?
-  and time_us < ?
+where feed_name = $1
+  and time_us < $2
 order by time_us desc
-limit ?
+limit $3
 `
 
 type GetFeedPostsParams struct {
@@ -68,8 +68,8 @@ func (q *Queries) GetFeedPosts(ctx context.Context, arg GetFeedPostsParams) ([]F
 
 const updateFeedCursor = `-- name: UpdateFeedCursor :exec
 update feeds
-set latest_cursor = ?
-where feed_name = ?
+set latest_cursor = $1
+where feed_name = $2
 `
 
 type UpdateFeedCursorParams struct {
@@ -84,7 +84,7 @@ func (q *Queries) UpdateFeedCursor(ctx context.Context, arg UpdateFeedCursorPara
 
 const upsertFeed = `-- name: UpsertFeed :exec
 insert into feeds (feed_name)
-values (?)
+values ($1)
 on conflict do nothing
 `
 
@@ -96,7 +96,7 @@ func (q *Queries) UpsertFeed(ctx context.Context, feedName string) error {
 const upsertFeedPost = `-- name: UpsertFeedPost :exec
 insert
 into feed_posts (feed_name, time_us, did, rkey)
-values (?, ?, ?, ?)
+values ($1, $2, $3, $4)
 on conflict (feed_name, did, rkey) do nothing
 `
 

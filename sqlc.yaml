@@ -2,7 +2,9 @@
 
 version: "2"
 sql:
-  - engine: "sqlite"
+  # Note: postgresql is needed to support the `$1` prepared statements in sqlc
+  # but the queries are also compatible with sqlite
+  - engine: "postgresql"
     queries: "db/queries/queries.sql"
     schema: "db/migrations/schema.sql"
     gen:
