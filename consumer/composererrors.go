@@ -1,9 +1,7 @@
 package consumer
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
 	dbpkg "jetstream-feed-generator/db/sqlc"
 	"log/slog"
 	"regexp"
@@ -36,23 +34,8 @@ func (f *ComposerErrorsFeed) DB() *dbpkg.Queries {
 	return f.q
 }
 
-func (f *ComposerErrorsFeed) HandlePost(ctx context.Context, event *models.Event, post *apibsky.FeedPost) error {
-	if isComposerError(post) {
-		f.logger.Debug(
-			"post matched", "did", event.Did, "rkey", event.Commit.RKey,
-			"text", post.Text, "uri", post.Embed.EmbedExternal.External.Uri,
-		)
-		err := f.q.UpsertFeedPost(ctx, dbpkg.UpsertFeedPostParams{
-			FeedName: f.Name(),
-			TimeUs:   event.TimeUS,
-			Did:      event.Did,
-			Rkey:     event.Commit.RKey,
-		})
-		if err != nil {
-			return fmt.Errorf("failed to upsert feed post: %w", err)
-		}
-	}
-	return nil
+func (f *ComposerErrorsFeed) Match(event *models.Event, post *apibsky.FeedPost) bool {
+	return isComposerError(post)
 }
 
 var domainRe = regexp.MustCompile("^https://(([A-Za-z0-9-]+)\\.([A-Za-z0-9]+))$")

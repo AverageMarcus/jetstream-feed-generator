@@ -28,7 +28,7 @@ type Config struct {
 type Feed interface {
 	Name() string
 	DB() *dbpkg.Queries
-	HandlePost(ctx context.Context, event *models.Event, post *apibsky.FeedPost) error
+	Match(event *models.Event, post *apibsky.FeedPost) bool
 }
 
 func RunConsumer(ctx context.Context, config Config) error {
@@ -139,6 +139,7 @@ type handler struct {
 }
 
 func (h *handler) HandleEvent(ctx context.Context, event *models.Event) error {
+	logger := slog.With("component", "consumer")
 	if event.Commit != nil && (event.Commit.Operation == models.CommitOperationCreate || event.Commit.Operation == models.CommitOperationUpdate) {
 		switch event.Commit.Collection {
 		case "app.bsky.feed.post":
@@ -147,8 +148,20 @@ func (h *handler) HandleEvent(ctx context.Context, event *models.Event) error {
 				return fmt.Errorf("failed to unmarshal post: %w", err)
 			}
 			for _, f := range h.feeds {
-				if err := f.HandlePost(ctx, event, &post); err != nil {
-					return err
+				if f.Match(event, &post) {
+					logger.Debug(
+						"post matched", "feed", f.Name(),
+						"did", event.Did, "rkey", event.Commit.RKey, "text", post.Text,
+					)
+					err := f.DB().UpsertFeedPost(ctx, dbpkg.UpsertFeedPostParams{
+						FeedName: f.Name(),
+						TimeUs:   event.TimeUS,
+						Did:      event.Did,
+						Rkey:     event.Commit.RKey,
+					})
+					if err != nil {
+						return fmt.Errorf("failed to upsert feed post: %w", err)
+					}
 				}
 			}
 		}

@@ -1,7 +1,6 @@
 package consumer
 
 import (
-	"context"
 	"database/sql"
 	dbpkg "jetstream-feed-generator/db/sqlc"
 	"log/slog"
@@ -65,14 +64,8 @@ func (f *EnglishTextFeed) DB() *dbpkg.Queries {
 	return f.q
 }
 
-func (f *EnglishTextFeed) HandlePost(ctx context.Context, event *models.Event, post *apibsky.FeedPost) error {
-	if f.isEnglishText(post) {
-		f.logger.Debug(
-			"post matched", "did", event.Did, "rkey", event.Commit.RKey,
-			"text", post.Text,
-		)
-	}
-	return nil
+func (f *EnglishTextFeed) Match(event *models.Event, post *apibsky.FeedPost) bool {
+	return f.isEnglishText(post)
 }
 
 func (f *EnglishTextFeed) isEnglishText(post *apibsky.FeedPost) bool {
