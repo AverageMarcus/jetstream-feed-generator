@@ -20,6 +20,7 @@ type Config struct {
 	FeedName  string   `mapstructure:"feed_name"`
 	LogLevel  string   `mapstructure:"log_level"`
 	LogFormat string   `mapstructure:"log_format"`
+	LogStats  bool     `mapstructure:"log_stats"`
 	Consumer  struct {
 		Enabled      bool   `mapstructure:"enabled"`
 		JetstreamURL string `mapstructure:"jetstream_url"`
@@ -75,6 +76,7 @@ func setupFlags(cmd *cobra.Command) {
 	flags.StringArray("feed_names", []string{"composer-errors"}, "Feed names")
 	flags.String("log_level", "INFO", "Log level")
 	flags.String("log_format", "text", "Log format (text or json)")
+	flags.Bool("log_stats", true, "Log out stats every 5 seconds")
 
 	flags.Bool("consumer.enabled", true, "Enable consumer")
 	flags.String("consumer.jetstream_url", consumer.DefaultJetstreamURL, "Jetstream URL")

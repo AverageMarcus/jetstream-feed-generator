@@ -23,6 +23,7 @@ type Config struct {
 	JetstreamURL string
 	StartCursor  int64
 	DB           *sql.DB
+	Stats        bool
 }
 
 type Feed interface {
@@ -108,7 +109,7 @@ func RunConsumer(ctx context.Context, config Config) error {
 						logger.Error("failed to save cursor", "feed", f.Name(), "error", err)
 					}
 				}
-				if t.Second()%5 == 0 {
+				if t.Second()%5 == 0 && config.Stats {
 					eventsRead := c.EventsRead.Load()
 					bytesRead := c.BytesRead.Load()
 					avgEventSize := bytesRead / eventsRead

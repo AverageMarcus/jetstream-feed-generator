@@ -71,6 +71,7 @@ func Run(config confpkg.Config) error {
 			JetstreamURL: config.Consumer.JetstreamURL,
 			StartCursor:  config.Consumer.StartCursor,
 			DB:           db,
+			Stats:        config.LogStats,
 		}
 		wg.Add(1)
 		go func() {
