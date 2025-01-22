@@ -37,8 +37,8 @@ func RunConsumer(ctx context.Context, config Config) error {
 	logger := slog.With("component", "consumer")
 	handler := handler{
 		feeds: []Feed{
-			NewComposerErrorsFeed("composer-errors", logger, config.DB),
-			NewEnglishTextFeed("english-text", logger, config.DB),
+			// NewComposerErrorsFeed("composer-errors", logger, config.DB),
+			// NewEnglishTextFeed("english-text", logger, config.DB),
 			NewKubeConFeed("kubecon", logger, config.DB),
 			NewKubeConPartyFeed("kubecon-party", logger, config.DB),
 		},
