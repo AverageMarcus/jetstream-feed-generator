@@ -72,6 +72,7 @@ func Run(config confpkg.Config) error {
 			StartCursor:  config.Consumer.StartCursor,
 			DB:           db,
 			Stats:        config.LogStats,
+			FeedNames:    config.FeedNames,
 		}
 		wg.Add(1)
 		go func() {

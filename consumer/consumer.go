@@ -25,6 +25,7 @@ type Config struct {
 	StartCursor  int64
 	DB           *sql.DB
 	Stats        bool
+	FeedNames    []string
 }
 
 type Feed interface {
@@ -35,13 +36,32 @@ type Feed interface {
 
 func RunConsumer(ctx context.Context, config Config) error {
 	logger := slog.With("component", "consumer")
+
+	getFeed := func(name string) *Feed {
+		var feed Feed
+		switch name {
+		case "composer-errors":
+			feed = NewComposerErrorsFeed("composer-errors", logger, config.DB)
+		case "english-text":
+			feed = NewEnglishTextFeed("english-text", logger, config.DB)
+		case "kubecon":
+			feed = NewKubeConFeed("kubecon", logger, config.DB)
+		case "kubecon-party":
+			feed = NewKubeConPartyFeed("kubecon-party", logger, config.DB)
+		}
+		return &feed
+	}
+
+	enabledFeeds := []Feed{}
+	for _, f := range config.FeedNames {
+		feed := getFeed(f)
+		if feed != nil {
+			enabledFeeds = append(enabledFeeds, *feed)
+		}
+	}
+
 	handler := handler{
-		feeds: []Feed{
-			// NewComposerErrorsFeed("composer-errors", logger, config.DB),
-			// NewEnglishTextFeed("english-text", logger, config.DB),
-			NewKubeConFeed("kubecon", logger, config.DB),
-			NewKubeConPartyFeed("kubecon-party", logger, config.DB),
-		},
+		feeds:        enabledFeeds,
 		latestCursor: config.StartCursor,
 	}
 
