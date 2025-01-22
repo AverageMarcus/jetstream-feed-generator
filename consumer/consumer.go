@@ -39,6 +39,8 @@ func RunConsumer(ctx context.Context, config Config) error {
 		feeds: []Feed{
 			NewComposerErrorsFeed("composer-errors", logger, config.DB),
 			NewEnglishTextFeed("english-text", logger, config.DB),
+			NewKubeConFeed("kubecon", logger, config.DB),
+			NewKubeConPartyFeed("kubecon-party", logger, config.DB),
 		},
 		latestCursor: config.StartCursor,
 	}
@@ -128,9 +130,9 @@ func RunConsumer(ctx context.Context, config Config) error {
 	}()
 
 	for {
-	if err := c.ConnectAndRead(ctx, &handler.latestCursor); err != nil {
+		if err := c.ConnectAndRead(ctx, &handler.latestCursor); err != nil {
 			if !strings.HasPrefix(err.Error(), "read loop failed") {
-		return fmt.Errorf("failed to connect: %v", err)
+				return fmt.Errorf("failed to connect: %v", err)
 			}
 			// Lets retry...
 			logger.Warn("Failed to read from websocket, we're going to retry...")
