@@ -33,7 +33,7 @@ func (f *KubeConPartyFeed) DB() *dbpkg.Queries {
 }
 
 func (f *KubeConPartyFeed) Match(event *models.Event, post *apibsky.FeedPost) bool {
-	if post.Embed != nil || post.Reply != nil || len(post.Text) == 0 {
+	if len(post.Text) == 0 {
 		return false
 	}
 
