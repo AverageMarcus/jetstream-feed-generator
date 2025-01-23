@@ -56,7 +56,7 @@ func (f *KubeConFeed) Match(event *models.Event, post *apibsky.FeedPost) bool {
 			"Rejekts", "RejektsEU", "RejektsNA",
 		}
 		// Some common phrases that might be used without hashtags that we'd want to match on
-		re = regexp.MustCompile(`(?mi)\W(KubeCon|KubeConCloudNativeCon|CloudNativeCon|Rejekts)(EU|NA|JP|CN|IN)?(\d{2,4})?(\W|$)`)
+		re = regexp.MustCompile(`(?mi)(^|\s|#)(KubeCon|KubeConCloudNativeCon|CloudNativeCon|Rejekts)(EU|NA|JP|CN|IN)?(\d{2,4})?(\W|$)`)
 	)
 
 	// Used to include year-specific hashtags for each

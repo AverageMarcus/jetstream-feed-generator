@@ -51,7 +51,7 @@ func (f *KubeConPartyFeed) isKubeConPost(post *apibsky.FeedPost) bool {
 			"KubeCrawl", "CloudNativeFest", "KubeCrawlCloudNativeFest",
 		}
 		// Some common phrases that might be used without hashtags that we'd want to match on
-		re = regexp.MustCompile(`(?mi)\W(KubeCon|KubeConCloudNativeCon|CloudNativeCon)(EU|NA|JP|CN|IN)?(\d{2,4})?(\W|$)`)
+		re = regexp.MustCompile(`(?mi)(^|\s|#)(KubeCon|KubeConCloudNativeCon|CloudNativeCon)(EU|NA|JP|CN|IN)?(\d{2,4})?(\W|$)`)
 	)
 
 	// Used to include year-specific hashtags for each
@@ -81,7 +81,7 @@ func (f *KubeConPartyFeed) isPartyPost(post *apibsky.FeedPost) bool {
 		// Official hashtags we want to include
 		hashtags = []string{"KubeCrawl", "CloudNativeFest", "KubeCrawlCloudNativeFest", "KubeConParty"}
 		// Some common phrases that might be used without hashtags that we'd want to match on
-		re = regexp.MustCompile(`(?mi)\W(Party|Parties|Social|Meetup)(\W|$)`)
+		re = regexp.MustCompile(`(?mi)(^|\s|#)(Party|Parties|Social|Meetup)(\W|$)`)
 	)
 
 	// Used to include year-specific hashtags for each
