@@ -21,7 +21,7 @@ func (dbf DbFeed) GetPage(
 	ctx context.Context, feed string, userDID string,
 	limit int64, cursor string,
 ) ([]*bsky.FeedDefs_SkeletonFeedPost, *string, error) {
-	slog.Info("generating feed", "component", "dbfeed",
+	slog.Debug("generating feed", "component", "dbfeed",
 		"feed", feed, "user_did", userDID, "limit", limit, "cursor", cursor)
 	// not using userDID, same posts for everybody
 	cursorAsInt := time.Now().UnixMicro()

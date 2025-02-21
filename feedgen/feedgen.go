@@ -60,7 +60,9 @@ func RunFeedGenerator(ctx context.Context, config Config) error {
 
 	// Create a gin router with default middleware for logging and recovery
 	router := gin.New()
-	router.Use(sloggin.New(logger))
+	router.Use(sloggin.NewWithConfig(logger, sloggin.Config{
+		DefaultLevel: slog.LevelDebug,
+	}))
 	router.Use(gin.Recovery())
 
 	// Add unauthenticated routes for feed generator

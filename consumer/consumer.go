@@ -176,7 +176,7 @@ func (h *handler) HandleEvent(ctx context.Context, event *models.Event) error {
 			}
 			for _, f := range h.feeds {
 				if f.Match(event, &post) {
-					logger.Debug(
+					logger.Info(
 						"post matched", "feed", f.Name(),
 						"did", event.Did, "rkey", event.Commit.RKey, "text", post.Text,
 					)
