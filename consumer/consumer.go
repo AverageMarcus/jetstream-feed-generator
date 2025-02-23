@@ -172,7 +172,11 @@ func (h *handler) HandleEvent(ctx context.Context, event *models.Event) error {
 		case "app.bsky.feed.post":
 			var post apibsky.FeedPost
 			if err := json.Unmarshal(event.Commit.Record, &post); err != nil {
-				return fmt.Errorf("failed to unmarshal post: %w", err)
+				logger.Error(
+					"failed to unmarshal post",
+					"record", event.Commit.Record, "error", err,
+				)
+				break
 			}
 			for _, f := range h.feeds {
 				if f.Match(event, &post) {
