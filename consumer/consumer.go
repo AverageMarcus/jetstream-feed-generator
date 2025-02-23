@@ -174,7 +174,9 @@ func (h *handler) HandleEvent(ctx context.Context, event *models.Event) error {
 			if err := json.Unmarshal(event.Commit.Record, &post); err != nil {
 				logger.Error(
 					"failed to unmarshal post",
-					"record", event.Commit.Record, "error", err,
+					"record", event.Commit.Record,
+					"did", event.Did,
+					"error", err,
 				)
 				break
 			}
