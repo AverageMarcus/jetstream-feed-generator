@@ -151,10 +151,11 @@ func RunConsumer(ctx context.Context, config Config) error {
 
 	for {
 		if err := c.ConnectAndRead(ctx, &handler.latestCursor); err != nil {
-			if strings.Contains(err.Error(), "unexpected EOF") {
+			if strings.Contains(err.Error(), "unexpected EOF") || strings.Contains(err.Error(), "bad handshake") {
 				logger.Error(
 					"Failed to read from websocket, we're going to skip to the next cursor...",
 					"latest_cursor", handler.latestCursor,
+					"err", err,
 				)
 				handler.latestCursor = handler.latestCursor + 1
 				continue
