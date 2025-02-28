@@ -151,7 +151,14 @@ func RunConsumer(ctx context.Context, config Config) error {
 
 	for {
 		if err := c.ConnectAndRead(ctx, &handler.latestCursor); err != nil {
-			if !strings.HasPrefix(err.Error(), "read loop failed") {
+			if strings.Contains(err.Error(), "unexpected EOF") {
+				logger.Error(
+					"Failed to read from websocket, we're going to skip to the next cursor...",
+					"latest_cursor", handler.latestCursor,
+				)
+				handler.latestCursor = handler.latestCursor + 1
+				continue
+			} else if !strings.HasPrefix(err.Error(), "read loop failed") {
 				return fmt.Errorf("failed to connect: %v", err)
 			}
 			// Lets retry...
